@@ -1,4 +1,4 @@
-import datetime
+# -*- coding: utf-8 -*-
 import os
 import pandas as pd
 import logging
@@ -30,8 +30,8 @@ def prepare_station_df(station_df: pd.DataFrame, file_name: str) -> pd.DataFrame
     }
     for k, v in station_info.items():
         prep_station_df[k] = v
-    quality_cols = [c for c in prep_station_df.columns if c not in list(station_info.values())]
-    return prep_station_df[list(station_info.values()) + quality_cols]
+    quality_cols = [c for c in prep_station_df.columns if c not in list(station_info.keys())]
+    return prep_station_df[list(station_info.keys()) + quality_cols]
 
 
 def load_single_station_data(path_to_file: str, file_name: str) -> pd.DataFrame:
@@ -47,8 +47,8 @@ def load_single_station_data(path_to_file: str, file_name: str) -> pd.DataFrame:
     path_to_file_name = os.path.join(path_to_file, file_name)
 
     station_df = pd.read_csv(path_to_file_name, na_values=' ', parse_dates=['date'])
-    station_df = prepare_station_df(station_df=station_df, file_name=file_name)
-    return station_df
+    prep_station_df = prepare_station_df(station_df=station_df, file_name=file_name)
+    return prep_station_df
 
 
 def load_stations_data(specific_station_file: str = None) -> pd.DataFrame:
@@ -71,10 +71,12 @@ def load_stations_data(specific_station_file: str = None) -> pd.DataFrame:
     return stations_df
 
 
-def save_stations_data(stations_df: pd.DataFrame, specific_file: str = 'stations_data'):
+def save_stations_data(stations_df: pd.DataFrame, specific_file: str = None):
     """
     Save dataframe to preprocessed folder
     """
+    if specific_file is None:
+        specific_file = 'stations_data.csv'
     path_to_output = os.path.join(PROC_DATA_DIR, specific_file)
     logging.info("saving stations dataframe as csv in {f}".format(f=specific_file))
     stations_df.to_csv(path_to_output)
