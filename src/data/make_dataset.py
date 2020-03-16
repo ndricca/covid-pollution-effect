@@ -3,7 +3,6 @@ import os
 
 import argparse
 import logging
-from dotenv import find_dotenv, load_dotenv
 import sys
 
 sys.path.append(os.getcwd())
@@ -43,6 +42,5 @@ if __name__ == '__main__':
 
     # find .env automagically by walking up directories until it's found, then
     # load up the .env entries as environment variables
-    load_dotenv(find_dotenv())
     parse_arguments()
     main()
