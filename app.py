@@ -1,22 +1,19 @@
 import streamlit as st
-import sys
-import matplotlib.pyplot as plt
 import logging
 
-from src.data.air_quality.air_quality_proc import load_proc_data, year_on_year_comparison, plot_year_on_year_comparison
+from src.data.air_quality.air_quality_proc import load_air_quality_data, year_on_year_comparison, plot_year_on_year_comparison
 from src.config import AQ_COLS
 
 
 @st.cache
 def load_data():
-    data = load_proc_data()
+    aq_data = load_air_quality_data()
     return data
 
 
 @st.cache
 def filter_data(data, station, curr_year, comp_year):
-    stat_data = data.loc[data['station_name'] == station, :]
-    yoy_df = year_on_year_comparison(dt_stations_df=stat_data, curr_year=curr_year, comp_year=comp_year)
+    yoy_df = year_on_year_comparison(dt_stations_df=data, station=station, curr_year=curr_year, comp_year=comp_year)
     return yoy_df
 
 
@@ -41,3 +38,4 @@ if __name__ == '__main__':
     st.line_chart(
         plot_year_on_year_comparison(filter_data(data=data, station=station, curr_year=curr_year, comp_year=comp_year),
                                      aq_col=aq_col, smooth=smooth))
+

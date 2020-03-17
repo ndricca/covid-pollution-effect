@@ -26,7 +26,7 @@ def create_dt_features(stations_df: pd.DataFrame) -> pd.DataFrame:
     return dt_stations_df
 
 
-def load_proc_data(proc_file: str = 'stations_data.csv') -> pd.DataFrame:
+def load_air_quality_data(proc_file: str = 'stations_data.csv') -> pd.DataFrame:
     """ Read processed data from csv. Date is parsed as datetime object. """
     path_to_file = os.path.join(PROC_DATA_DIR, proc_file)
     logging.info("loading file {f}".format(f=path_to_file))
@@ -40,11 +40,14 @@ def get_overall_daily_means(dt_stations_df: pd.DataFrame) -> pd.DataFrame:
     return daily_means
 
 
-def year_on_year_comparison(dt_stations_df: pd.DataFrame, curr_year: str = None, comp_year: str = None) -> pd.DataFrame:
+def year_on_year_comparison(dt_stations_df: pd.DataFrame, station: str = None, curr_year: str = None,
+                            comp_year: str = None) -> pd.DataFrame:
     if curr_year is None:
         curr_year = str(datetime.datetime.now().year)
     if comp_year is None:
         comp_year = str(datetime.datetime.now().year - 1)
+    if station:
+        dt_stations_df = dt_stations_df.loc[dt_stations_df['station_name'] == station]
     curr_df = dt_stations_df.loc[dt_stations_df['year'] == curr_year, DT_ID_COLS + AQ_COLS].reset_index()
     comp_df = dt_stations_df.loc[dt_stations_df['year'] == comp_year, DT_ID_COLS + AQ_COLS].reset_index()
     yoy_df = pd.merge(curr_df, comp_df, on=DT_ID_COLS, how='outer', suffixes=("_" + curr_year, "_" + comp_year))
@@ -66,4 +69,3 @@ def plot_year_on_year_comparison(yoy_df: pd.DataFrame, aq_col: str = None, smoot
 
 if __name__ == '__main__':
     print("ok")
-

@@ -3,7 +3,7 @@ import os
 import pandas as pd
 import logging
 
-from src.config import RAW_DATA_DIR, PROC_DATA_DIR
+from src.config import AQ_DATA_DIR, PROC_DATA_DIR
 
 
 def _strip_string(string):
@@ -61,12 +61,12 @@ def load_stations_data(specific_station_file: str = None) -> pd.DataFrame:
     :return: pandas dataframe with stations data
     """
     if specific_station_file:
-        stations_df = load_single_station_data(path_to_file=RAW_DATA_DIR, file_name=specific_station_file)
+        stations_df = load_single_station_data(path_to_file=AQ_DATA_DIR, file_name=specific_station_file)
     else:
-        files = [f for f in os.listdir(RAW_DATA_DIR) if f.endswith('air-quality.csv')]
+        files = [f for f in os.listdir(AQ_DATA_DIR) if f.endswith('air-quality.csv')]
         stations_df = pd.DataFrame()
         for file in files:
-            station_df = load_single_station_data(path_to_file=RAW_DATA_DIR, file_name=file)
+            station_df = load_single_station_data(path_to_file=AQ_DATA_DIR, file_name=file)
             stations_df = pd.concat([stations_df, station_df])
     return stations_df
 
@@ -81,3 +81,10 @@ def save_stations_data(stations_df: pd.DataFrame, specific_file: str = None):
     logging.info("saving stations dataframe as csv in {f}".format(f=specific_file))
     stations_df.to_csv(path_to_output)
 
+
+if __name__ == '__main__':
+    logger = logging.getLogger(__name__)
+    logger.info('making final data set from raw data')
+
+    stations_df = load_stations_data()
+    save_stations_data(stations_df=stations_df)
