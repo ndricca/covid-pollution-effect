@@ -7,7 +7,7 @@ import sys
 
 sys.path.append(os.getcwd())
 
-from src.config import WT_BASE_URL, ITA_MONTHS, WT_DATA_DIR, WT_STATIONS, WT_START_YEAR, PROC_DATA_DIR
+from src.config import WT_BASE_URL, ITA_MONTHS, WT_DATA_DIR, WT_STATIONS, WT_START_YEAR, PROC_DATA_DIR  # NOQA
 
 
 def download_weather_month(station: str = 'Milano', year: str = None, month: str = None):
@@ -21,7 +21,6 @@ def download_weather_month(station: str = 'Milano', year: str = None, month: str
         month = str(datetime.datetime.now().strftime("%m"))
     ita_month = ITA_MONTHS[month]
     weather_url = WT_BASE_URL + "/".join([station, year, ita_month]) + "?format=csv"
-    res = requests.get(weather_url)
     weather_out_path = os.path.join(WT_DATA_DIR, 'weather_{}.csv'.format("_".join([station, year, ita_month])))
     logging.info("downloading data for {s} {y} {m} to {p}".format(s=station, y=year, m=ita_month, p=weather_out_path))
     with open(weather_out_path, 'w') as f, requests.get(weather_url, stream=True) as r:

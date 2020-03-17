@@ -52,7 +52,7 @@ def year_on_year_comparison(dt_stations_df: pd.DataFrame, station: str = None, c
     comp_df = dt_stations_df.loc[dt_stations_df['year'] == comp_year, DT_ID_COLS + AQ_COLS].reset_index()
     yoy_df = pd.merge(curr_df, comp_df, on=DT_ID_COLS, how='outer', suffixes=("_" + curr_year, "_" + comp_year))
     yoy_df = yoy_df.rename({'date_' + curr_year: 'date'}, axis=1)
-    yoy_df = yoy_df.loc[yoy_df['date'].isnull() == False].set_index('date')
+    yoy_df = yoy_df.loc[~yoy_df['date'].isnull()].set_index('date')
     return yoy_df
 
 

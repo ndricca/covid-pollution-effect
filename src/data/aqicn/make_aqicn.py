@@ -5,7 +5,7 @@ import sys
 
 sys.path.append(os.getcwd())
 
-from src.data.aqicn.air_quality_raw_to_proc import load_stations_data, save_stations_data
+from src.data.aqicn.air_quality_raw_to_proc import load_stations_data, save_stations_data  # NOQA
 
 
 def main():

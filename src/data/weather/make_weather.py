@@ -4,7 +4,7 @@ import sys
 
 sys.path.append(os.getcwd())
 
-from src.data.weather.weather_raw_to_proc import download_weather_data, create_weather_df, save_weather_df
+from src.data.weather.weather_raw_to_proc import download_weather_data, create_weather_df, save_weather_df  # NOQA
 
 
 if __name__ == '__main__':
