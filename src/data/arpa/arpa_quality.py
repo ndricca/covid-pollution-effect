@@ -5,7 +5,7 @@ from sodapy import Socrata
 from pathlib import Path
 from dotenv import load_dotenv
 
-from src.config import PROJECT_DIR, ARPA_DATA_DIR, ARPA_REG_DATA_ID, ARPA_MEASURES_DATA_ID, WT_STATIONS
+from src.config import PROJECT_DIR, ARPA_DATA_DIR, ARPA_REG_DATA_ID, ARPA_MEASURES_DATA_ID, PROC_DATA_DIR
 
 
 class ArpaConnect:
@@ -53,7 +53,7 @@ def get_current_sensor_data(arpa: ArpaConnect, id_data: pd.DataFrame, dataset_id
 
 def get_historical_sensor_data(id_data: pd.DataFrame) -> pd.DataFrame:
     """ Load all data from previous years for selected sensor id dataframe. """
-    files = os.listdir(ARPA_DATA_DIR)
+    files = [file for file in os.listdir(ARPA_DATA_DIR) if file.endswith('.zip')]
     hist_list = []
     csv_kwargs = {
         'compression': 'zip',
@@ -72,6 +72,18 @@ def get_historical_sensor_data(id_data: pd.DataFrame) -> pd.DataFrame:
     return hist_df
 
 
+def load_historical_data(id_data: pd.DataFrame, build_historical: bool = False) -> pd.DataFrame:
+    if build_historical:
+        logging.info("Create historical arpa dataframe from zipped csv")
+        hist_df = get_historical_sensor_data(id_data=id_data)
+        hist_df.to_csv('history_df.csv')
+    else:
+        input_path = os.path.join(ARPA_DATA_DIR, 'history_df.csv')
+        logging.info("Create historical arpa dataframe from builded csv")
+        hist_df = pd.read_csv(input_path, parse_dates=['data'], dtype={'idsensore': str, 'valore': float})
+    return hist_df
+
+
 def clean_current_sensor_df(sensor_df: pd.DataFrame, id_data: pd.DataFrame) -> pd.DataFrame:
     """ Handle NA values, columns type, merge id info. """
     cleaned_sensor_df = sensor_df.loc[sensor_df['valore'] != '-9999']
@@ -83,11 +95,21 @@ def clean_current_sensor_df(sensor_df: pd.DataFrame, id_data: pd.DataFrame) -> p
     return merged_sensor_df
 
 
-def get_all_sensor_data(arpa: ArpaConnect, station: str = None) -> pd.DataFrame:
+def get_all_sensor_data(arpa: ArpaConnect, station: str = None, build_historical: bool = False) -> pd.DataFrame:
     id_data = get_city_sensor_ids(arpa=arpa, city=station)
     current_sensor_df = get_current_sensor_data(arpa=arpa, id_data=id_data)
-    curr_cleaned_df = clean_current_sensor_df(sensor_df=current_sensor_df, id_data=id_data)
-    return curr_cleaned_df
+    current_df = clean_current_sensor_df(sensor_df=current_sensor_df, id_data=id_data)
+    historical_cleaned_df = load_historical_data(id_data=id_data, build_historical=build_historical)
+    all_sensor_df = pd.concat([historical_cleaned_df, current_df])
+    return all_sensor_df
+
+
+def save_all_sensor_data(all_sensor_df, specific_file: str = None):
+    if specific_file is None:
+        specific_file = 'arpa_data.csv'
+    path_to_output = os.path.join(PROC_DATA_DIR, specific_file)
+    logging.info("saving arpa dataframe as csv in {f}".format(f=specific_file))
+    all_sensor_df.to_csv(path_to_output)
 
 
 if __name__ == '__main__':
@@ -95,4 +117,5 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO, format=log_fmt)
 
     arpa = ArpaConnect()
-
+    df = arpa.get_df(dataset_identifier=ARPA_REG_DATA_ID)
+    print(df.head())

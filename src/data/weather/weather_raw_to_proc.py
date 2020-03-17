@@ -88,7 +88,7 @@ def create_weather_df(data_dir: str = None) -> pd.DataFrame:
 
 def save_weather_df(weather_df: pd.DataFrame, output_proc_file: str = None):
     if output_proc_file is None:
-        output_proc_file = 'weather_data.csv'
+        output_proc_file = 'weather.csv'
     path_to_output = os.path.join(PROC_DATA_DIR, output_proc_file)
     logging.info("saving weather dataframe as csv in {f}".format(f=output_proc_file))
     weather_df.to_csv(path_to_output, index=False)

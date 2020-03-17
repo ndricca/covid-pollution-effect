@@ -1,7 +1,7 @@
 import streamlit as st
 import logging
 
-from src.data.air_quality.air_quality_proc import load_air_quality_data, year_on_year_comparison, plot_year_on_year_comparison
+from src.data.aqicn.air_quality_proc import load_air_quality_data, year_on_year_comparison, plot_year_on_year_comparison
 from src.config import AQ_COLS
 
 

@@ -6,7 +6,7 @@ DATA_DIR = os.path.join(PROJECT_DIR, 'data')
 RAW_DATA_DIR = os.path.join(DATA_DIR, 'raw')
 PROC_DATA_DIR = os.path.join(DATA_DIR, 'processed')
 
-AQ_DATA_DIR = os.path.join(RAW_DATA_DIR, 'air_quality')
+AQ_DATA_DIR = os.path.join(RAW_DATA_DIR, 'aqicn')
 WT_DATA_DIR = os.path.join(RAW_DATA_DIR, 'weather')
 ARPA_DATA_DIR = os.path.join(RAW_DATA_DIR, 'arpa_quality')
 
@@ -31,7 +31,6 @@ ITA_MONTHS = {
     "11": "Novembre",
     "12": "Dicembre",
 }
-
 
 ARPA_REG_DATA_ID = 'ib47-atvt'
 ARPA_MEASURES_DATA_ID = 'nicp-bhqi'
