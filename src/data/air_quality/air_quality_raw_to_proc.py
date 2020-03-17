@@ -63,7 +63,7 @@ def load_stations_data(specific_station_file: str = None) -> pd.DataFrame:
     if specific_station_file:
         stations_df = load_single_station_data(path_to_file=RAW_DATA_DIR, file_name=specific_station_file)
     else:
-        files = [f for f in os.listdir(RAW_DATA_DIR) if f.endswith('italy-air-quality.csv')]
+        files = [f for f in os.listdir(RAW_DATA_DIR) if f.endswith('air-quality.csv')]
         stations_df = pd.DataFrame()
         for file in files:
             station_df = load_single_station_data(path_to_file=RAW_DATA_DIR, file_name=file)

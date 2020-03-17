@@ -53,8 +53,17 @@ def year_on_year_comparison(dt_stations_df: pd.DataFrame, curr_year: str = None,
     return yoy_df
 
 
-def plot_year_on_year_comparison(yoy_df: pd.DataFrame, aq_col: str = None):
+def plot_year_on_year_comparison(yoy_df: pd.DataFrame, aq_col: str = None, smooth: bool = False):
     if aq_col is None:
         aq_col = AQ_COLS[1]
     yoy_aq_cols = [c for c in yoy_df.columns if c.startswith(aq_col)]
-    return yoy_df[yoy_aq_cols]
+    if smooth:
+        plt_yoy = yoy_df[yoy_aq_cols].ewm(span=7, ignore_na=True).mean()
+    else:
+        plt_yoy = yoy_df[yoy_aq_cols]
+    return plt_yoy
+
+
+if __name__ == '__main__':
+    print("ok")
+

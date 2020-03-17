@@ -7,4 +7,5 @@ RAW_DATA_DIR = os.path.join(DATA_DIR, 'raw')
 PROC_DATA_DIR = os.path.join(DATA_DIR, 'processed')
 
 AQ_COLS = ['pm25', 'pm10', 'o3', 'no2', 'so2', 'co']
-DT_ID_COLS = ['station_name', 'weekofyear', 'wday']
+DT_ID_COLS = ['station_name', 'month', 'day']
+# DT_ID_COLS = ['station_name', 'weekofyear', 'wday']
