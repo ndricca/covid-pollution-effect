@@ -34,3 +34,9 @@ ITA_MONTHS = {
 
 ARPA_REG_DATA_ID = 'ib47-atvt'
 ARPA_MEASURES_DATA_ID = 'nicp-bhqi'
+ARPA_MEASURES_FREQ = {
+    'hourly': ['Ossidi di Azoto', 'Biossido di Azoto', 'Biossido di Zolfo', 'Ozono',
+               'Ammoniaca', 'Monossido di Carbonio', 'Benzene', 'Benzo(a)pirene',
+               'Nikel', 'Arsenico', 'Cadmio', 'Piombo', 'BlackCarbon'],
+    'daily': ['PM10 (SM2005)', 'Particelle sospese PM2.5']
+}

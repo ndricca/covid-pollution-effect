@@ -73,6 +73,7 @@ def _clean_cols(c_name):
     cleaned = cleaned.replace('%', 'perc')
     cleaned = cleaned.replace('/', '')
     cleaned = cleaned.lower().lstrip().rstrip()
+    cleaned = cleaned.replace(" ","_")
     return cleaned
 
 
@@ -87,10 +88,10 @@ def create_weather_df(data_dir: str = None) -> pd.DataFrame:
 
 def save_weather_df(weather_df: pd.DataFrame, output_proc_file: str = None):
     if output_proc_file is None:
-        output_proc_file = 'weather.csv'
+        output_proc_file = 'weather_data.pkl'
     path_to_output = os.path.join(PROC_DATA_DIR, output_proc_file)
-    logging.info("saving weather dataframe as csv in {f}".format(f=output_proc_file))
-    weather_df.to_csv(path_to_output, index=False)
+    logging.info("saving weather dataframe as pickle in {f}".format(f=output_proc_file))
+    weather_df.to_pickle(path_to_output)
 
 
 if __name__ == '__main__':

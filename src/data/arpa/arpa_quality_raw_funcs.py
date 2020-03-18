@@ -5,7 +5,7 @@ from sodapy import Socrata
 from pathlib import Path
 from dotenv import load_dotenv
 
-from src.config import PROJECT_DIR, ARPA_DATA_DIR, ARPA_REG_DATA_ID, ARPA_MEASURES_DATA_ID, PROC_DATA_DIR
+from src.config import PROJECT_DIR, ARPA_DATA_DIR, ARPA_REG_DATA_ID, ARPA_MEASURES_DATA_ID, PROC_DATA_DIR, WT_STATIONS
 
 
 class ArpaConnect:
@@ -81,11 +81,10 @@ def load_historical_data(id_data: pd.DataFrame, build_historical: bool = False) 
     if build_historical:
         logging.info("Create historical arpa dataframe from zipped csv")
         hist_df = get_historical_sensor_data(id_data=id_data)
-        hist_df.to_csv('history_df.csv')
     else:
-        input_path = os.path.join(ARPA_DATA_DIR, 'history_df.csv')
-        logging.info("Create historical arpa dataframe from builded csv")
-        hist_df = pd.read_csv(input_path, parse_dates=['data'], dtype={'idsensore': str, 'valore': float})
+        input_path = os.path.join(ARPA_DATA_DIR, 'history_df.pkl')
+        logging.info("Create historical arpa dataframe from builded pickle")
+        hist_df = pd.read_pickle(input_path)
     return hist_df
 
 
@@ -111,16 +110,20 @@ def get_all_sensor_data(arpa: ArpaConnect, station: str = None, build_historical
 
 def save_all_sensor_data(all_sensor_df, specific_file: str = None):
     if specific_file is None:
-        specific_file = 'arpa_data.csv'
+        specific_file = 'arpa_data.pkl'
     path_to_output = os.path.join(PROC_DATA_DIR, specific_file)
-    logging.info("saving arpa dataframe as csv in {f}".format(f=specific_file))
-    all_sensor_df.to_csv(path_to_output, index=False)
+    logging.info("saving arpa dataframe as pickle in {f}".format(f=specific_file))
+    all_sensor_df.to_pickle(path_to_output)
 
 
 if __name__ == '__main__':
     log_fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     logging.basicConfig(level=logging.INFO, format=log_fmt)
-
     arpa = ArpaConnect()
-    df = arpa.get_df(dataset_identifier=ARPA_REG_DATA_ID)
-    print(df.head())
+    logging.info("building ARPA {}".format("history_df.pkl"))
+    station = WT_STATIONS[0]
+    id_data = get_city_sensor_ids(arpa=arpa, city=station)
+    hist_arpa_df = get_historical_sensor_data(id_data=id_data)
+    out_hist_path = os.path.join(ARPA_DATA_DIR, 'history_df.pkl')
+    logging.info("saving to {}".format(out_hist_path))
+    hist_arpa_df.to_pickle(out_hist_path)

@@ -5,7 +5,7 @@ import sys
 
 sys.path.append(os.getcwd())
 
-from src.data.arpa.arpa_quality import ArpaConnect, get_all_sensor_data, save_all_sensor_data  # NOQA
+from src.data.arpa.arpa_quality_raw_funcs import ArpaConnect, get_all_sensor_data, save_all_sensor_data  # NOQA
 from src.config import WT_STATIONS  # NOQA
 
 
