@@ -9,7 +9,13 @@ from src.data.arpa.arpa_quality import ArpaConnect, get_all_sensor_data, save_al
 from src.config import WT_STATIONS  # NOQA
 
 
-def main(build_historical=False):
+def main(build_historical: bool = False):
+    """
+    Build sensor air quality data from ARPA open dataset, filtering for a selected city (parameter station below).
+    If -h is passed as argument to the script, historical data are read from zipped csv.
+    Historical data are downloaded as yearly zipped csv while current year data are obtained via API.
+    Both kind of sources are publicly available at [this link](https://www.dati.lombardia.it/stories/s/auv9-c2sj)
+    """
     arpa = ArpaConnect()
     station = WT_STATIONS[0]
     logging.info("Building ARPA data for station {s}".format(s=station))

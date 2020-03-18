@@ -9,6 +9,10 @@ from src.config import PROJECT_DIR, ARPA_DATA_DIR, ARPA_REG_DATA_ID, ARPA_MEASUR
 
 
 class ArpaConnect:
+    """
+    Simple connector to Socrata API used to get current ARPA air quality open data.
+    Connection parameters are written into .env private file.
+    """
 
     def __init__(self):
         self.params_dict = {}
@@ -66,6 +70,7 @@ def get_historical_sensor_data(id_data: pd.DataFrame) -> pd.DataFrame:
         hist_single_df = pd.read_csv(os.path.join(ARPA_DATA_DIR, f), **csv_kwargs)
         hist_single_df.columns = [c.lower() for c in hist_single_df.columns]
         merged_single_df = pd.merge(hist_single_df, id_data, on='idsensore', how='inner')
+        merged_single_df = merged_single_df.loc[merged_single_df['valore'] != -9999]
         merged_single_df = merged_single_df.drop(columns=['idoperatore'])
         hist_list.append(merged_single_df)
     hist_df = pd.concat(hist_list)
@@ -109,7 +114,7 @@ def save_all_sensor_data(all_sensor_df, specific_file: str = None):
         specific_file = 'arpa_data.csv'
     path_to_output = os.path.join(PROC_DATA_DIR, specific_file)
     logging.info("saving arpa dataframe as csv in {f}".format(f=specific_file))
-    all_sensor_df.to_csv(path_to_output)
+    all_sensor_df.to_csv(path_to_output, index=False)
 
 
 if __name__ == '__main__':
