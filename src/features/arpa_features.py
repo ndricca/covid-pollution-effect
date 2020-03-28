@@ -25,5 +25,14 @@ def filter_by_frequency(arpa_df: pd.DataFrame, freq: str = None) -> pd.DataFrame
     return freq_arpa_df
 
 
+def aggregate_to_daily(arpa_df: pd.DataFrame) -> pd.DataFrame:
+    order_cols = list(arpa_df.columns)
+    hourly_arpa_df = arpa_df.rename({'data': 'data_ora'}, axis=1)
+    hourly_arpa_df['data'] = hourly_arpa_df['data_ora'].astype('<M8[D]')
+    daily_arpa_df = hourly_arpa_df.groupby(['idsensore', 'data', 'nometiposensore', 'idstazione']).agg(
+        {'valore': 'mean', 'stato': 'first'}).reset_index()
+    return daily_arpa_df[order_cols]
+
+
 if __name__ == '__main__':
     print("ok")

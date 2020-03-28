@@ -20,6 +20,7 @@ def main(build_historical: bool = False):
     station = WT_STATIONS[0]
     logging.info("Building ARPA data for station {s}".format(s=station))
     all_sensor_df = get_all_sensor_data(arpa=arpa, station=station, build_historical=build_historical)
+    logging.info("max observation: {}".format(all_sensor_df['data'].max()))
     save_all_sensor_data(all_sensor_df=all_sensor_df)
 
 

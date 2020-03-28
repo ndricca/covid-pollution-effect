@@ -1,20 +1,32 @@
-import streamlit as st
+import datetime
 import logging
+import streamlit as st
 
-from src.data.aqicn.air_quality_proc import load_air_quality_data, year_on_year_comparison, plot_year_on_year_comparison
-from src.config import AQ_COLS
+from src.models.train_model import normalize_from_data
+from src.visualization.visualize import dataset_for_viz, create_params_dict, create_select_box, filter_data, \
+    display_correlogram_matrix, filter_dates, display_sensor_scatter, display_plotly_timestamp, \
+    display_year_on_year_avg_pollutant
 
 
 @st.cache
-def load_data():
-    aq_data = load_air_quality_data()
+def load():
+    data = dataset_for_viz()
     return data
 
 
 @st.cache
-def filter_data(data, station, curr_year, comp_year):
-    yoy_df = year_on_year_comparison(dt_stations_df=data, station=station, curr_year=curr_year, comp_year=comp_year)
-    return yoy_df
+def filter_with_params(data, params):
+    vega = filter_data(dataset=data, params=params)
+    return vega
+
+
+def normalize(data, params_dict=None, start_date=None):
+    if params_dict is not None:
+        data = filter_with_params(data=data, params=params_dict)
+    if start_date is not None:
+        data = filter_dates(dataset=data, start_date=start_date)
+    norm_data = normalize_from_data(dataset=data)
+    return norm_data
 
 
 if __name__ == '__main__':
@@ -22,20 +34,38 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO, format=log_fmt)
 
     st.title("Covid-19 effect on pollution")
+    data = load()
+    params_dict = create_params_dict(dataset=data)
+    place_holders = {k: st.empty() for k in params_dict.keys()}
+    boxes = create_select_box(st=st.sidebar, params_dict=params_dict, ph=place_holders)
+    vega = filter_with_params(data, boxes)
 
-    data = load_data()
-    station = st.sidebar.selectbox("Station name:", data['station_name'].unique())
-    curr_yr_ls = sorted(data['year'].unique(), reverse=True)
-    curr_year = st.sidebar.selectbox("Current year:", curr_yr_ls)
-    comp_yr_ls = [y for y in curr_yr_ls if y != curr_year]
-    comp_year = st.sidebar.selectbox("Comparison year:", comp_yr_ls)
-    filtered = filter_data(data=data, station=station, curr_year=curr_year, comp_year=comp_year)
-    if st.checkbox("Show data", False):
-        st.write(filtered[[c for c in filtered.columns if c.split("_")[0] in AQ_COLS]])
-    aq_col = st.sidebar.selectbox("Air pollutant:", AQ_COLS)
-    smooth = st.sidebar.checkbox("Smooth", False)
-    st.subheader("Timeline for station {s}".format(s=station))
-    st.line_chart(
-        plot_year_on_year_comparison(filter_data(data=data, station=station, curr_year=curr_year, comp_year=comp_year),
-                                     aq_col=aq_col, smooth=smooth))
+    if st.checkbox('show sensor registry:', False):
+        st.table(vega.loc[:, ['idsensore', 'nometiposensore', 'idstazione']].drop_duplicates().reset_index())
 
+    if st.checkbox('filter dates:', False):
+        start_date = st.date_input('start date:', datetime.date(2019, 1, 1))
+        vega = filter_dates(dataset=vega, start_date=start_date)
+    else:
+        start_date = None
+
+    if st.checkbox('show pollutant timeline', False):
+        lines = vega.pivot_table(index='data', columns='idsensore', values='valore').reset_index()
+        display_plotly_timestamp(lines=lines)
+
+    if st.checkbox('show year on year comparison', True):
+        year_list = [y for y in vega['data'].dt.year.unique() if y != datetime.datetime.now().year]
+        year = st.selectbox('compare year:', sorted(year_list, reverse=True))
+        st.subheader('raw comparison')
+        display_year_on_year_avg_pollutant(data=vega, comp_year=year)
+        st.subheader('normalized comparison')
+        norm_data = normalize(data=data, start_date=start_date, params_dict=boxes)
+        display_year_on_year_avg_pollutant(data=norm_data, comp_year=year)
+
+    if st.checkbox('show selected weather impact on pollutant per sensor', False):
+        weather_infos = list(set(['umidita_perc'] + sorted([c for c in vega.columns if len(c.split("_")) > 1])))
+        weather_info = st.selectbox("weather info: ", weather_infos)
+        display_sensor_scatter(data=vega, weather_info=weather_info)
+
+    if st.checkbox('show all weather impact on pollutant', False):
+        display_correlogram_matrix(data=vega)

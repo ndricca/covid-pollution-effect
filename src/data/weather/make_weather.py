@@ -14,6 +14,7 @@ def main():
     """
     download_weather_data()
     weather_df = create_weather_df()
+    logging.info("max observation: {}".format(weather_df['data'].max()))
     save_weather_df(weather_df=weather_df)
 
 

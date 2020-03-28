@@ -73,7 +73,7 @@ def _clean_cols(c_name):
     cleaned = cleaned.replace('%', 'perc')
     cleaned = cleaned.replace('/', '')
     cleaned = cleaned.lower().lstrip().rstrip()
-    cleaned = cleaned.replace(" ","_")
+    cleaned = cleaned.replace(" ", "_")
     return cleaned
 
 
@@ -81,8 +81,12 @@ def create_weather_df(data_dir: str = None) -> pd.DataFrame:
     if data_dir is None:
         data_dir = WT_DATA_DIR
     files = os.listdir(data_dir)
-    weather_df = pd.concat([pd.read_csv(os.path.join(data_dir, f), sep=';', parse_dates=['DATA']) for f in files])
+    dt_parser = lambda date: datetime.datetime.strptime(date, '%d/%m/%Y')
+    weather_df = pd.concat(
+        [pd.read_csv(os.path.join(data_dir, f), sep=';', decimal=',', parse_dates=['DATA'], date_parser=dt_parser) for f in files])
     weather_df.columns = [_clean_cols(c) for c in weather_df.columns]
+    w_cols = [c for c in weather_df.columns if c not in ['localita', 'data', 'fenomeni']]
+    weather_df.loc[:, w_cols] = weather_df.loc[:, w_cols].apply(pd.to_numeric, errors='coerce')
     return weather_df
 
 
