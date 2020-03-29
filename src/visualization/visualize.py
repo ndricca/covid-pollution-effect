@@ -7,7 +7,6 @@ import matplotlib.pyplot as plt
 import pandas as pd
 import streamlit as st
 import plotly.graph_objects as go
-from bokeh.models import GMapPlot, GMapOptions, DataRange1d
 
 sys.path.append(os.getcwd())
 
@@ -105,7 +104,7 @@ def display_timestamp(lines: pd.DataFrame, use_st=False):
         plt.show()
 
 
-def display_plotly_timestamp(lines: pd.DataFrame, color_only_average=False, use_st=False):
+def display_plotly_timestamp(lines: pd.DataFrame, color_only_average=False, before_after_areas=False, use_st=False):
     fig = go.Figure()
     value_cols = [c for c in lines.columns if c != 'data']
     for i, line_col in enumerate(value_cols):
@@ -121,8 +120,17 @@ def display_plotly_timestamp(lines: pd.DataFrame, color_only_average=False, use_
             line_color=line_color))
     # Use date string to set xaxis range
     fig.update_layout(xaxis=DEFAULT_PLOTLY_XAXIS_CFG)
-    initial_range = [lines['data'].max() + pd.DateOffset(months=-2), lines['data'].max()]
-    fig['layout']['xaxis'].update(range=[d.strftime('%Y-%m-%d') for d in initial_range])
+    if before_after_areas:
+        fig.update_layout(
+            shapes=[
+                # 1st highlight during Jan 15 - Jan 29
+                {'type': "rect", 'xref': "x", 'yref': "paper", 'x0': "2020-01-15", 'y0': 0, 'x1': "2020-01-29", 'y1': 1,
+                 'fillcolor': "LightSalmon", 'opacity': 0.5, 'layer': "below", 'line_width': 0},
+                # 2nd highlight during Mar 01 - Mar 10
+                {'type': "rect", 'xref': "x", 'yref': "paper", 'x0': "2020-03-01", 'y0': 0, 'x1': "2020-03-10", 'y1': 1,
+                 'fillcolor': "LightGreen", 'opacity': 0.5, 'layer': "below", 'line_width': 0}
+            ]
+        )
     if use_st:
         st.plotly_chart(fig)
     else:
