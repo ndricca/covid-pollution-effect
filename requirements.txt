@@ -7,6 +7,8 @@ requests
 pandas
 matplotlib
 streamlit
+folium
+scikit-learn
 # local package
 -e .
 

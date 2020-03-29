@@ -110,7 +110,7 @@ def display_plotly_timestamp(lines: pd.DataFrame, color_only_average=False, use_
     value_cols = [c for c in lines.columns if c != 'data']
     for i, line_col in enumerate(value_cols):
         if color_only_average:
-            line_color = 'rgb(238,57,57)' if line_col == 'average' else 'rgb(110,110,110)'
+            line_color = 'rgb(238,57,57)' if line_col == 'average' else 'rgb(170,170,170)'
         else:
             line_color = DEFAULT_PLOTLY_COLORS[i]
         fig.add_trace(go.Scatter(
