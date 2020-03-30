@@ -13079,21 +13079,6 @@ div#notebook {
 </div>
 <div class="cell border-box-sizing code_cell rendered">
 
-<div class="output_wrapper">
-<div class="output">
-
-<div class="output_area">
-
-<div class="output_subarea output_stream output_stderr output_text">
-<pre>Connected with Socrata backend for recent data
-Download from Socrata dataset ib47-atvt with kwargs {&#39;where&#39;: &#34;comune = &#39;Milano&#39; and datastop IS NULL&#34;, &#39;order&#39;: &#39;idsensore&#39;}
-</pre>
-</div>
-</div>
-
-</div>
-</div>
-
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
@@ -13135,7 +13120,7 @@ By clicking on the marker a popup will show which sensors are present on the sel
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>I started looking at raw data measured by these stations, in particular I focues my attention on NO2, which is the pollutant considered by several weather agencies in satellite images to highlight the COVID-19 effect. Several <a href="https://www.euronews.com/2020/03/14/coronavirus-satellite-data-shows-italy-s-pollution-plummet-amid-covid-19-lockdown">news agencies</a> published a "before-after comparison like this:</p>
+<p>I started looking at raw data measured by these stations, in particular I focus my attention on NO2, which is the pollutant considered by several weather agencies in satellite images to highlight the COVID-19 effect. Several <a href="https://www.euronews.com/2020/03/14/coronavirus-satellite-data-shows-italy-s-pollution-plummet-amid-covid-19-lockdown">news agencies</a> published a "before-after comparison like this:</p>
 
 </div>
 </div>
@@ -13264,7 +13249,7 @@ if (outputEl) {{
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>A Year on Year (YoY) comparison with 2019 is then plotted on the global average, and the two series do not seem to appear so different:</p>
+<p>A Year on Year (YoY) comparison with 2019 is then plotted on the global average, and the two series do not seem to appear so different: during the first two weeks of March NO2 seems <strong>both</strong> decreasing compared to previous months of the year.</p>
 
 </div>
 </div>
@@ -13332,8 +13317,8 @@ if (outputEl) {{
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Moreover, weekly trends might be also depend on weather conditions: rain, humidity, temperature and wind have a recognized impact on air quality so they must be taken into account to correctly compare pollutant series.
-Several research has been conducted to obtain this process, also know as "<strong>weather normalization</strong>". Among the other, I found very useful the analysis made by <a href="https://www.researchgate.net/profile/Stuart_Grange2">Stuart Grange</a>, in particular his R package <a href="https://github.com/skgrange/rmweather">rmweater</a>.
+<p>Moreover, weekly trends might also depend on weather conditions: rain, humidity, temperature and wind have a recognized impact on air quality so they must be taken into account to correctly compare pollutant series.
+Several research has been conducted to obtain this process, also know as "<strong>weather normalization</strong>". Among others, I found very useful the analysis made by <a href="https://www.researchgate.net/profile/Stuart_Grange2">Stuart Grange</a>, in particular his R package <a href="https://github.com/skgrange/rmweather">rmweater</a>.
 I tried to reproduce the procedure he explained in Python, all my code is available inside this <a href="https://github.com/ndricca/covid-pollution-effect/">github repository</a>.</p>
 <p>Long story short, I obtained daily weather data for Milan and trained a Random Forest model on each sensor using calendar and weather features as covariates.
 Then, a set of multiple forecasts is conducted randomly assigning weather and calendar features to each day and aggregating the results.</p>
@@ -13426,7 +13411,7 @@ if (outputEl) {{
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Comparing normalized series of other pollutants resulted in quite different plots. In practice the other most important pollutants did not shows this kind of divergence.</p>
+<p>Comparing normalized series of other pollutants resulted in quite different plots. <strong>In practice the other most important pollutants did not shows this kind of divergence. </strong></p>
 
 </div>
 </div>
@@ -13434,7 +13419,7 @@ if (outputEl) {{
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>This is the result for PM10:</p>
+<p>Below you can see the normalized YoY comparison for average PM10 pollutant time series. 2020 series looks always slightly higher, with no clear trend from March.</p>
 
 </div>
 </div>
@@ -13502,7 +13487,7 @@ if (outputEl) {{
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>This is the result for PM2.5:</p>
+<p>Also PM2.5 pollutant average series did not diverge on a YoY comparison:</p>
 
 </div>
 </div>
@@ -13570,7 +13555,7 @@ if (outputEl) {{
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>And finally here's the comparison for CO.</p>
+<p>And finally the same applies to CO time series:</p>
 
 </div>
 </div>
@@ -13638,7 +13623,23 @@ if (outputEl) {{
 <div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
 </div><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>More other pollutant can be compared. Inside my repository I published also the code for a very simple streamlit app in which it is possible to choose a pollutant and observe raw and normalized data.</p>
+<p>More other pollutants can be compared. Inside my repository I published also the code for a very simple streamlit app in which it is possible to choose a pollutant and observe raw and normalized data.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>From this analysis, COVID-19 containment dispositions seems to affect only NOx levels, in particular NO2, while <strong>other important pollutant such as PM10 and PM2.5 have not decreased during these last weeks</strong>.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="prompt input_prompt">
+</div><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Since traffic is just one among many sources of pollution in urban areas, it will be interesting to compare again pollutant levels once central heating will be turned off (April, 14th).</p>
 
 </div>
 </div>
