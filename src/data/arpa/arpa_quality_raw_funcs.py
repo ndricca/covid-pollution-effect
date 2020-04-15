@@ -5,7 +5,7 @@ from sodapy import Socrata
 from pathlib import Path
 from dotenv import load_dotenv
 
-from src.config import PROJECT_DIR, ARPA_DATA_DIR, ARPA_REG_DATA_ID, ARPA_MEASURES_DATA_ID, PROC_DATA_DIR, WT_STATIONS
+from src.config import PROJECT_DIR, ARPA_DATA_DIR, ARPA_REG_DATA_ID, ARPA_MEASURES_DATA_ID, PROC_DATA_DIR, ARPA_STATIONS
 
 
 class ArpaConnect:
@@ -38,10 +38,18 @@ class ArpaConnect:
         return results_df
 
 
-def get_city_sensor_ids(arpa, city):
-    """Get dataframe with sensor id, type and location"""
+def get_city_sensor_ids(arpa: ArpaConnect, city: str=None, prov: str=None) -> pd.DataFrame:
+    """Get dataframe with sensor id, type and location """
+    where_component = ["datastop IS NULL"]
+    if city is not None:
+        city_cond = 'comune = "{}"'.format(city)
+        where_component.append(city_cond)
+    if prov is not None:
+        prov_cond = 'provincia = "{}"'.format(prov)
+        where_component.append(prov_cond)
+    where_cond = " and ".join(where_component)
     reg_df = arpa.get_df(ARPA_REG_DATA_ID,
-                         where="comune = '{}' and datastop IS NULL".format(city),
+                         where=where_cond,
                          order="idsensore")
     return reg_df
 
@@ -102,6 +110,8 @@ def clean_current_sensor_df(sensor_df: pd.DataFrame, id_data: pd.DataFrame) -> p
 def get_all_sensor_data(arpa: ArpaConnect, station: str = None, build_historical: bool = False) -> pd.DataFrame:
     id_data = get_city_sensor_ids(arpa=arpa, city=station)
     current_sensor_df = get_current_sensor_data(arpa=arpa, id_data=id_data)
+    if len(current_sensor_df) == 0:
+        raise RuntimeError("no current data available for selected sensors")
     current_df = clean_current_sensor_df(sensor_df=current_sensor_df, id_data=id_data)
     historical_cleaned_df = load_historical_data(id_data=id_data, build_historical=build_historical)
     all_sensor_df = pd.concat([historical_cleaned_df, current_df])
@@ -121,9 +131,12 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO, format=log_fmt)
     arpa = ArpaConnect()
     logging.info("building ARPA {}".format("history_df.pkl"))
-    station = WT_STATIONS[0]
-    id_data = get_city_sensor_ids(arpa=arpa, city=station)
-    hist_arpa_df = get_historical_sensor_data(id_data=id_data)
+    hist_arpa_list = []
+    for station in ARPA_STATIONS:
+        id_data = get_city_sensor_ids(arpa=arpa, city=station)
+        stat_hist_arpa_df = get_historical_sensor_data(id_data=id_data)
+        hist_arpa_list.append(stat_hist_arpa_df)
+    hist_arpa_df = pd.concat(hist_arpa_list)
     out_hist_path = os.path.join(ARPA_DATA_DIR, 'history_df.pkl')
     logging.info("saving to {}".format(out_hist_path))
     hist_arpa_df.to_pickle(out_hist_path)

@@ -2,11 +2,12 @@
 import os
 import logging
 import sys
+import pandas as pd
 
 sys.path.append(os.getcwd())
 
 from src.data.arpa.arpa_quality_raw_funcs import ArpaConnect, get_all_sensor_data, save_all_sensor_data  # NOQA
-from src.config import WT_STATIONS  # NOQA
+from src.config import ARPA_STATIONS  # NOQA
 
 
 def main(build_historical: bool = False):
@@ -17,10 +18,17 @@ def main(build_historical: bool = False):
     Both kind of sources are publicly available at [this link](https://www.dati.lombardia.it/stories/s/auv9-c2sj)
     """
     arpa = ArpaConnect()
-    station = WT_STATIONS[0]
-    logging.info("Building ARPA data for station {s}".format(s=station))
-    all_sensor_df = get_all_sensor_data(arpa=arpa, station=station, build_historical=build_historical)
-    logging.info("max observation: {}".format(all_sensor_df['data'].max()))
+    all_data_list = []
+    for station in ARPA_STATIONS:
+        logging.info("Building ARPA data for station {s}".format(s=station))
+        try:
+            station_sensor_df = get_all_sensor_data(arpa=arpa, station=station, build_historical=build_historical)
+        except RuntimeError as re:
+            logging.exception(re)
+            continue
+        logging.info("max observation: {}".format(station_sensor_df['data'].max()))
+        all_data_list.append(station_sensor_df)
+    all_sensor_df = pd.concat(all_data_list)
     save_all_sensor_data(all_sensor_df=all_sensor_df)
 
 
