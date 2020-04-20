@@ -1,13 +1,25 @@
 # -*- coding: utf-8 -*-
+import argparse
 import os
 import logging
-import sys
 import pandas as pd
+import sys
+import warnings
 
 sys.path.append(os.getcwd())
+warnings.filterwarnings('ignore')
 
-from src.data.arpa.arpa_quality_raw_funcs import ArpaConnect, get_all_sensor_data, save_all_sensor_data  # NOQA
-from src.config import ARPA_STATIONS  # NOQA
+from src.data.arpa.arpa_quality_raw_funcs import ArpaConnect, get_all_sensor_data, save_all_sensor_data
+from src.config import ARPA_STATIONS
+
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-b", "--build_history",
+                        help="[False] historical data are read from zipped csv instead of prebuilt pickle",
+                        required=False, default=False, action="store_true")
+    args = parser.parse_args()
+    return args.build_history
 
 
 def main(build_historical: bool = False):
@@ -35,6 +47,6 @@ def main(build_historical: bool = False):
 if __name__ == '__main__':
     log_fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     logging.basicConfig(level=logging.INFO, format=log_fmt)
-    hist_flag = True if len(sys.argv) > 1 and sys.argv[1] == '-h' else False
+    args = parse_args()
 
-    main(build_historical=hist_flag)
+    main(args)

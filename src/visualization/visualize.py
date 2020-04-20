@@ -177,6 +177,13 @@ def display_correlogram_matrix(data: pd.DataFrame, n_col: int = 2, use_st=False)
         plt.show()
 
 
+def pivot_to_multiple_series(data, id_col='idsensore', value_col='valore', dt_col='data', reind_and_interp=False):
+    lines = data.pivot_table(index=dt_col, columns=id_col, values=value_col)
+    if reind_and_interp:
+        all_dt_idx = pd.date_range(lines.index.min(), lines.index.max())
+        lines = lines.reindex(all_dt_idx)
+    lines['average'] = lines.mean(axis=1)
+
 
 if __name__ == '__main__':
     print("ok")

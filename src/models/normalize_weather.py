@@ -2,8 +2,10 @@
 import os
 import logging
 import sys
+import warnings
 
 sys.path.append(os.getcwd())
+warnings.filterwarnings('ignore')
 
 from src.models.train_model import pipeline_normalize_multi_sensors
 

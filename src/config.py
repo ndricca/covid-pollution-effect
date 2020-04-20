@@ -34,7 +34,7 @@ ITA_MONTHS = {
 
 ARPA_REG_DATA_ID = 'ib47-atvt'
 ARPA_MEASURES_DATA_ID = 'nicp-bhqi'
-ARPA_STATIONS = ['Milano', 'Pioltello']
+ARPA_STATIONS = ['Milano']
 ARPA_MEASURES_FREQ = {
     'hourly': ['Ossidi di Azoto', 'Biossido di Azoto', 'Biossido di Zolfo', 'Ozono',
                'Ammoniaca', 'Monossido di Carbonio', 'Benzene', 'Benzo(a)pirene',
@@ -74,7 +74,7 @@ FEAT_DATE_COLS = FEAT_CAL_COLS + FEAT_MONTH_COLS + FEAT_WEEK_COLS
 RANDOM_FOREST_CONFIG = {
     'n_estimators': 20
 }
-BOOTSTRAP_SAMPLES = 100
+BOOTSTRAP_SAMPLES = 500
 
 FOLIUM_CFG = {
     'location': [45.4646602, 9.1889546],

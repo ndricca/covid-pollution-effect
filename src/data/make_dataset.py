@@ -1,18 +1,29 @@
 # -*- coding: utf-8 -*-
+import argparse
 import os
 import logging
 import sys
-
+import warnings
 
 sys.path.append(os.getcwd())
+warnings.filterwarnings('ignore')
 
 from src.data.common_funcs import create_dataset, save_dataset
+
+
+def parse_args():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("-d", "--daily",
+                        help="[False] daily data are considered instead of hourly",
+                        required=False, default=False, action="store_true")
+    args = parser.parse_args()
+    return args.daily
 
 
 def main(use_daily: bool = None):
     """
     Build total dataset merging ARPA air quality data with weather data.
-    If -h is passed as argument to the script, only hourly ARPA data are filtered, otherwise daily data are selected.
+    If use_daily is passed as argument, only daily ARPA data are filtered, otherwise hourly data are selected.
     """
     logging.info('making final dataset from raw data')
     dataset = create_dataset(use_daily=use_daily)
@@ -23,8 +34,5 @@ def main(use_daily: bool = None):
 if __name__ == '__main__':
     log_fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     logging.basicConfig(level=logging.INFO, format=log_fmt)
-    if len(sys.argv)>1 and sys.argv[1] == '-h':
-        use_daily = False
-    else:
-        use_daily = True
-    main(use_daily=use_daily)
+    daily = parse_args()
+    main(use_daily=daily)
