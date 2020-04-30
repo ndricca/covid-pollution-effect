@@ -150,6 +150,16 @@ def get_yearly_avg(data: pd.DataFrame, year: int, keep_date: bool = False, day_o
     return yrl_avg
 
 
+def reindex_data(df: pd.DataFrame, dt_as_idx: bool = False, dt_col: str = 'data') -> pd.DataFrame:
+    if dt_as_idx:
+        df = df.reindex(pd.date_range(df.index.min(), df.index.max(), freq='D'))
+    else:
+        df = df.set_index(dt_col)
+        df = df.reindex(pd.date_range(df.index.min(), df.index.max(), freq='D'))
+        df = df.reset_index()
+    return df
+
+
 def display_year_on_year_avg_pollutant(data: pd.DataFrame, comp_year: int = None, use_st=False):
     curr_year = datetime.datetime.now().year
     curr_avg = get_yearly_avg(data=data, year=curr_year, keep_date=True).reset_index()
@@ -157,6 +167,7 @@ def display_year_on_year_avg_pollutant(data: pd.DataFrame, comp_year: int = None
     year_on_year = pd.merge(curr_avg, comp_avg, on=['date_comp'], how='inner',
                             suffixes=(str(curr_year), str(comp_year)))
     year_on_year = year_on_year.drop(columns=['date_comp'])
+    # year_on_year = reindex_data(df=year_on_year)
     display_plotly_timestamp(lines=year_on_year, use_st=use_st)
 
 

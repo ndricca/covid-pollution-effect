@@ -91,7 +91,6 @@ def pipeline_normalize_multi_sensors(sensors_list: list = None):
     normalized_dataset.to_pickle(output_pkl)
 
 
-
 if __name__ == '__main__':
     sensor_dummies = True if len(sys.argv) > 1 and sys.argv[1] == '-all' else False
     filter_dict = {}
