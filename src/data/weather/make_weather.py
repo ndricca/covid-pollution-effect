@@ -14,7 +14,7 @@ def parse_args():
     return args
 
 
-def main():
+def make_weather_dataset():
     """
     Build weather data extracted from [this link](https://www.ilmeteo.it/portale/archivio-meteo/).
     Current month data are always downloaded, while previous month are downloaded only if absent from directory.
@@ -29,4 +29,4 @@ if __name__ == '__main__':
     log_fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     logging.basicConfig(level=logging.INFO, format=log_fmt)
     _ = parse_args()
-    main()
+    make_weather_dataset()

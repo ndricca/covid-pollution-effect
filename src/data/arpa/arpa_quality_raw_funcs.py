@@ -20,6 +20,7 @@ class ArpaConnect:
 
     def _init_connection(self):
         load_dotenv(Path(PROJECT_DIR) / '.env')
+        logging.info("Connected with Socrata backend for recent data")
         self.params_dict = {
             'domain': os.environ.get('ARPA_WEB_DOMAIN'),
             'app_token': os.environ.get('ARPA_APP_TOKEN'),
@@ -27,7 +28,7 @@ class ArpaConnect:
             'password': os.environ.get('ARPA_PWD')
         }
         self.connector = Socrata(**self.params_dict)
-        logging.info("Connected with Socrata backend for recent data")
+        logging.info("Backend connected")
 
     def get_df(self, dataset_identifier, **kwargs):
         logging.info("Download from Socrata dataset {d} {kw}".format(d=dataset_identifier,

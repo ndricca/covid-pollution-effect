@@ -20,7 +20,7 @@ def parse_args():
     return args.daily
 
 
-def main(use_daily: bool = None):
+def make_dataset(use_daily: bool = None):
     """
     Build total dataset merging ARPA air quality data with weather data.
     If use_daily is passed as argument, only daily ARPA data are filtered, otherwise hourly data are selected.
@@ -35,4 +35,4 @@ if __name__ == '__main__':
     log_fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     logging.basicConfig(level=logging.INFO, format=log_fmt)
     daily = parse_args()
-    main(use_daily=daily)
+    make_dataset(use_daily=daily)

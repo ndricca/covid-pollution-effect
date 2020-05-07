@@ -22,7 +22,7 @@ def parse_args():
     return args.build_history
 
 
-def main(build_historical: bool = False):
+def make_arpa_dataset(build_historical: bool = False):
     """
     Build sensor air quality data from ARPA open dataset, filtering for a selected city (parameter station below).
     If -h is passed as argument to the script, historical data are read from zipped csv.
@@ -49,4 +49,4 @@ if __name__ == '__main__':
     logging.basicConfig(level=logging.INFO, format=log_fmt)
     args = parse_args()
 
-    main(args)
+    make_arpa_dataset(args)
