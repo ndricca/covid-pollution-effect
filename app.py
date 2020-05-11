@@ -5,7 +5,7 @@ import warnings
 
 from src.data.arpa.arpa_quality_raw_funcs import ArpaConnect, get_city_sensor_ids
 from src.visualization.visualize import display_plotly_timestamp, display_year_on_year_avg_pollutant, \
-    dist_values_from_series, reindex_data
+    dist_values_from_series, reindex_data, summarize_sensors
 from src.data.common_funcs import load_dataset, load_normalized_dataset
 
 
@@ -39,7 +39,7 @@ if __name__ == '__main__':
     norm_data = load_norm_data()
     sensor_types = dist_values_from_series(raw_data['nometiposensore'], add_none='exclude')
     selected_type = st.sidebar.selectbox('Filter by sensor type:', sensor_types)
-    since_year = st.sidebar.selectbox('See raw data since:', sorted(list(range(2010, 2021)),reverse=True))
+    since_year = st.sidebar.selectbox('See raw data since:', sorted(list(range(2010, 2021)), reverse=True))
 
     selected_sensors = raw_data.loc[raw_data['nometiposensore'] == selected_type, 'idsensore'].unique().tolist()
     selected_raw_data = raw_data[raw_data['idsensore'].isin(selected_sensors)]
@@ -52,12 +52,15 @@ if __name__ == '__main__':
         last_year_selected_raw_data = selected_raw_data[selected_raw_data['data'].dt.year >= since_year]
         lines_last_year_selected_raw_data = last_year_selected_raw_data.pivot_table(index='data', columns='idsensore',
                                                                                     values='valore').reset_index()
-        # lines_last_year_selected_raw_data = reindex_data(df=lines_last_year_selected_raw_data)
+        lines_last_year_selected_raw_data = reindex_data(df=lines_last_year_selected_raw_data)
         sens_cols = [c for c in selected_sensors if c in lines_last_year_selected_raw_data.columns]
         if len(sens_cols) == 0:
-            raise RuntimeError("None of {l} when data are filtered since year {y}".format(l=sens_cols, y=since_year))
-        lines_last_year_selected_raw_data['average'] = lines_last_year_selected_raw_data[sens_cols].mean(axis=1)
-        display_plotly_timestamp(lines=lines_last_year_selected_raw_data, color_only_average=True, use_st=True)
+            raise RuntimeError(
+                "None of {l} available when data are filtered since year {y}".format(l=sens_cols, y=since_year))
+        lines_last_year_selected_raw_data['med'] = summarize_sensors(
+            lines=lines_last_year_selected_raw_data.set_index('data'),
+            na_per_sensor=0.3).values
+        display_plotly_timestamp(lines=lines_last_year_selected_raw_data, color_only_col='med', use_st=True)
 
     if st.checkbox('raw data: show year on year comparison on 2019', True):
         display_year_on_year_avg_pollutant(data=selected_raw_data, comp_year=2019, use_st=True)
@@ -66,13 +69,14 @@ if __name__ == '__main__':
         last_year_selected_norm_data = selected_norm_data[selected_norm_data['data'].dt.year >= since_year]
         lines_last_year_selected_norm_data = last_year_selected_norm_data.pivot_table(index='data', columns='idsensore',
                                                                                       values='valore').reset_index()
-        # lines_last_year_selected_norm_data = reindex_data(df=lines_last_year_selected_norm_data)
+        lines_last_year_selected_norm_data = reindex_data(df=lines_last_year_selected_norm_data)
         sens_cols = [c for c in selected_sensors if c in lines_last_year_selected_norm_data.columns]
         if len(sens_cols) == 0:
             raise RuntimeError("None of {l} when data are filtered since year {y}".format(l=sens_cols, y=since_year))
-        lines_last_year_selected_norm_data['average'] = lines_last_year_selected_norm_data[sens_cols].mean(
-            axis=1)
-        display_plotly_timestamp(lines=lines_last_year_selected_norm_data, color_only_average=True, use_st=True)
+        lines_last_year_selected_norm_data['med'] = summarize_sensors(
+            lines=lines_last_year_selected_norm_data.set_index('data'),
+            na_per_sensor=0.3).values
+        display_plotly_timestamp(lines=lines_last_year_selected_norm_data, color_only_col='med', use_st=True)
 
     if st.checkbox('normalized data: show year on year comparison on 2019', True):
         display_year_on_year_avg_pollutant(data=selected_norm_data, comp_year=2019, use_st=True)

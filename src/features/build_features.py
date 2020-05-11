@@ -6,14 +6,6 @@ from src.config import FEAT_KEEP_DTYPES
 from src.data.common_funcs import load_dataset
 from src.features.seasonality_features import add_harmonics
 from src.features.weather_features import create_weather_events
-from src.visualization.visualize import filter_data
-
-
-def filter_by_sensor(dataset: pd.DataFrame, filter_dict: dict = None) -> pd.DataFrame:
-    if len(filter_dict) == 0:
-        filter_dict['idsensore'] = dataset['idsensore'].unique()[0]
-    filtered_dataset = filter_data(dataset=dataset, params=filter_dict)
-    return filtered_dataset
 
 
 def build_dataset_with_sensor_dummies(dataset: pd.DataFrame) -> pd.DataFrame:

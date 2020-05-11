@@ -20,7 +20,7 @@ class ArpaConnect:
 
     def _init_connection(self):
         load_dotenv(Path(PROJECT_DIR) / '.env')
-        logging.info("Connected with Socrata backend for recent data")
+        logging.info("Connecting with Socrata backend for recent data")
         self.params_dict = {
             'domain': os.environ.get('ARPA_WEB_DOMAIN'),
             'app_token': os.environ.get('ARPA_APP_TOKEN'),

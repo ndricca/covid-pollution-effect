@@ -1,12 +1,14 @@
-import os
-import sys
-import pandas as pd
-from tqdm import tqdm
 import logging
+import os
+import pandas as pd
+import sys
+from tqdm import tqdm
+
+sys.path.append(os.getcwd())
 
 from src.config import BOOTSTRAP_SAMPLES, FEAT_WEATHER_COLS, FEAT_CAL_COLS, PROC_DATA_DIR
 from src.data.common_funcs import load_dataset
-from src.features.build_features import build_dataset_features, filter_by_sensor
+from src.features.build_features import build_dataset_features
 from src.models.models import WeatherModel
 
 
@@ -24,6 +26,18 @@ def x_y_split(dataset: pd.DataFrame, y_col: str = 'valore') -> tuple:
     y = dataset[y_col]
     x = dataset.drop(columns=[y_col])
     return x, y
+
+
+def filter_data(dataset: pd.DataFrame, params: dict) -> pd.DataFrame:
+    filter_cond = " & ".join({f"{k}=='{v}'" for k, v in params.items() if v is not None})
+    return dataset.query(filter_cond) if filter_cond else dataset
+
+
+def filter_by_sensor(dataset: pd.DataFrame, filter_dict: dict = None) -> pd.DataFrame:
+    if len(filter_dict) == 0:
+        filter_dict['idsensore'] = dataset['idsensore'].unique()[0]
+    filtered_dataset = filter_data(dataset=dataset, params=filter_dict)
+    return filtered_dataset
 
 
 def train_test_pipeline():
@@ -92,7 +106,9 @@ def pipeline_normalize_multi_sensors(sensors_list: list = None):
 
 
 if __name__ == '__main__':
+    log_fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    logging.basicConfig(level=logging.INFO, format=log_fmt)
+
     sensor_dummies = True if len(sys.argv) > 1 and sys.argv[1] == '-all' else False
     filter_dict = {}
     normalized_df = normalize_pollutant_pipeline(filter_dict=filter_dict, sensor_dummies=sensor_dummies)
-    normalized_df.plot()

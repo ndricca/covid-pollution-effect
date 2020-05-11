@@ -32,7 +32,7 @@ def make_dataset(use_daily: bool = None):
 
 
 if __name__ == '__main__':
-    log_fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+    log_fmt = '%(asctime)s - %(funcName)s - %(levelname)s - %(message)s'
     logging.basicConfig(level=logging.INFO, format=log_fmt)
     daily = parse_args()
     make_dataset(use_daily=daily)

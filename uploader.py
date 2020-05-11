@@ -24,19 +24,15 @@ def parse_args():
 
 
 def main(build_historical: bool, use_daily: bool, **kwargs):
+    logging.info("Updating data and executing the normalization pipeline")
     make_arpa_dataset(build_historical=build_historical)
     make_weather_dataset()
-    # make_dataset(use_daily=use_daily)
-    # predict_normalized_pollutant()
+    make_dataset(use_daily=use_daily)
+    predict_normalized_pollutant()
 
 
 if __name__ == '__main__':
     log_fmt = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     logging.basicConfig(level=logging.INFO, format=log_fmt)
-    # FIXME: understand why log format is not correctly displayed
-    try:
-        parameters = parse_args()
-        logging.info("Executing updating pipeline")
-        main(**parameters)
-    except Exception as e:
-        logging.exception(e)
+
+    main(**parse_args())

@@ -1,9 +1,11 @@
 # -*- coding: utf-8 -*-
 import datetime
+import logging
 import os
 import sys
 
 import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
 import streamlit as st
 import plotly.graph_objects as go
@@ -45,11 +47,6 @@ def create_select_box(st: st, params_dict: dict, ph: dict) -> dict:
     for box_name, values in params_dict.items():
         ph[box_name] = st.selectbox(box_name, values)
     return ph
-
-
-def filter_data(dataset: pd.DataFrame, params: dict) -> pd.DataFrame:
-    filter_cond = " & ".join({f"{k}=='{v}'" for k, v in params.items() if v is not None})
-    return dataset.query(filter_cond) if filter_cond else dataset
 
 
 def filter_dates(dataset: pd.DataFrame, start_date: datetime.date) -> pd.DataFrame:
@@ -104,12 +101,12 @@ def display_timestamp(lines: pd.DataFrame, use_st=False):
         plt.show()
 
 
-def display_plotly_timestamp(lines: pd.DataFrame, color_only_average=False, before_after_areas=False, use_st=False):
+def display_plotly_timestamp(lines: pd.DataFrame, color_only_col: str = '', before_after_areas=False, use_st=False):
     fig = go.Figure()
     value_cols = [c for c in lines.columns if c != 'data']
     for i, line_col in enumerate(value_cols):
-        if color_only_average:
-            line_color = 'rgb(238,57,57)' if line_col == 'average' else 'rgb(170,170,170)'
+        if color_only_col:
+            line_color = 'rgb(238,57,57)' if line_col == color_only_col else 'rgb(170,170,170)'
         else:
             line_color = DEFAULT_PLOTLY_COLORS[i]
         fig.add_trace(go.Scatter(
@@ -156,8 +153,42 @@ def reindex_data(df: pd.DataFrame, dt_as_idx: bool = False, dt_col: str = 'data'
     else:
         df = df.set_index(dt_col)
         df = df.reindex(pd.date_range(df.index.min(), df.index.max(), freq='D'))
+        df.index.name = dt_col
         df = df.reset_index()
     return df
+
+
+def summarize_sensors(lines: pd.DataFrame, dt_as_idx: bool = True, dt_col: str = 'data',
+                      na_per_sensor: float = None, na_per_date: int = None,
+                      method: str = 'median') -> pd.Series:
+    if not dt_as_idx:
+        try:
+            lines = lines.set_index(dt_col)
+        except Exception:
+            raise IndexError("dt_as_idx has been set to False and impossible to set {c} as index".format(c=dt_col))
+    if na_per_sensor is not None:
+        logging.info(
+            "automatically exclude sensors with more than {:2.2f} % of missing values".format(na_per_sensor * 100))
+        missing_ratio = lines.isna().sum() / len(lines)
+        sens_miss = lines.columns[missing_ratio > na_per_sensor]
+        if len(sens_miss) > 0:
+            logging.warning("removed sensors {}".format(
+                {"{}: {:4.2f} %".format(k, v) for k, v in
+                 (missing_ratio[missing_ratio > na_per_sensor] * 100).to_dict().items()}))
+            lines = lines.loc[:, lines.columns[missing_ratio <= na_per_sensor]]
+    else:
+        logging.warning("all sensors are included since na_per_sensor is set to None")
+    if na_per_date is None:
+        logging.debug("automatically exclude values when more than 50% of sensors are missing")
+        na_per_date = len(lines.columns) // 2
+    logging.info("removing sensor data for days with more than {n} missing values".format(n=na_per_date))
+    lines.loc[lines.isna().sum(axis=1) > na_per_date, :] = np.NaN
+    if method == 'median':
+        logging.info("summarizing measures using {m}".format(m=method))
+        summarized = lines.median(axis=1)
+    else:
+        raise NotImplementedError("no other methods than median are implemented at the moment")
+    return summarized
 
 
 def display_year_on_year_avg_pollutant(data: pd.DataFrame, comp_year: int = None, use_st=False):
