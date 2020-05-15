@@ -2,6 +2,7 @@ covid-pollution-effect
 ==============================
 
 A visual comparison on pollution indicators before and after covid-19.
+Results are provided in [this notebook](notebooks/covid_effect_pollution_milan.html) .
 
 Project Organization
 ------------
